@@ -1,5 +1,5 @@
-import { Schema } from "mongoose";
-import { AuthProviderType, IUser } from "./user.interface";
+import { model, Schema } from "mongoose";
+import { AuthProviderType, IUser, Role, UserStatus } from "./user.interface";
 
 const addressSchema = new Schema({
     street: { type: String, trim: true },
@@ -46,5 +46,35 @@ const userSchema = new Schema<IUser>({
         },
         select: false,
         minLength: 8
+    },
+    role: {
+        type: String,
+        enum: Object.values(Role),
+        required: true,
+        default: Role.SENDER
+    },
+    status: {
+        type: String,
+        enum: Object.values(UserStatus),
+        default: UserStatus.ACTIVE
+    },
+    address: addressSchema,
+    authProviders: {
+        type: [authProviderSchema],
+        default: []
     }
+}, {
+    timestamps: true,
+    versionKey: false,
+    toJSON: {
+        virtuals: true,
+    },
+    toObject: {
+        virtuals: true,
+    },
 });
+
+userSchema.index({ role: 1, status: 1 });
+userSchema.index({ createdAt: -1 });
+
+export const User = model<IUser>('User', userSchema);
