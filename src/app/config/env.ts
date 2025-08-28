@@ -8,7 +8,11 @@ interface EnvConfig {
 }
 
 const loadEnvVariables = (): EnvConfig => {
-    const requiredEnvVariables: string[] = ['PORT', 'DB_URL', 'NODE_ENV'];
+    const requiredEnvVariables: string[] = [
+        'PORT',
+        'DB_URL',
+        'NODE_ENV'
+    ];
 
     requiredEnvVariables.forEach(key => {
         if (!process.env[key]) {
@@ -23,4 +27,4 @@ const loadEnvVariables = (): EnvConfig => {
     };
 };
 
-export const envVars: EnvConfig = loadEnvVariables()
+export const envVars: EnvConfig = loadEnvVariables();
