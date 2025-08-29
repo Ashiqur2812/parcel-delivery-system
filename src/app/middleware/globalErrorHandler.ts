@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import AppError from "../errorHelper/AppError";
-import { envVars } from "../config/env";
+import config from '../config/env'
 
 export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
 
@@ -21,6 +21,6 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
         success: false,
         message,
         err,
-        stack: envVars.NODE_ENV === 'development' ? err.stack : null
+        stack: config.NODE_ENV === 'development' ? err.stack : null
     });
 };
