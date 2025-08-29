@@ -2,17 +2,17 @@
 import mongoose from "mongoose";
 import { Server } from 'http';
 import app from './app';
-import { envVars } from "./app/config/env";
+import config from '../src/app/config/env'
 
 let server: Server;
 
 const startServer = async () => {
     try {
-        await mongoose.connect(envVars.DB_URL);
+        await mongoose.connect(config.DB_URL);
         console.log('Connected to DB');
 
-        server = app.listen(envVars.PORT, () => {
-            console.log(`Server is listening to port ${envVars.PORT}`);
+        server = app.listen(config.PORT, () => {
+            console.log(`Server is listening to port ${config.PORT}`);
         });
 
     } catch (error) {

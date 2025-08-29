@@ -1,7 +1,7 @@
+import express, { Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import morgan from 'morgan'
-import express, { Request, Response } from 'express';
 const app = express();
 
 app.use(cookieParser());
