@@ -1,6 +1,7 @@
 import { model, Schema } from "mongoose";
 import { AuthProviderType, IUser, Role, UserStatus } from "./user.interface";
 
+
 const addressSchema = new Schema({
     street: { type: String, trim: true },
     city: { type: String, trim: true },
