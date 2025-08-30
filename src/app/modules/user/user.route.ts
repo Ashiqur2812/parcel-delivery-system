@@ -17,3 +17,5 @@ router.patch('/block/:id', checkAuth(Role.ADMIN), validateRequest(blockUserZodSc
 router.delete('/:id', checkAuth(Role.ADMIN), UserController.deleteUser);
 
 router.patch('/:id', validateRequest(updateUserZodSchema), checkAuth(Role.ADMIN, Role.SENDER, Role.RECEIVER), checkUserOwnerOrAdmin, UserController.updateUser);
+
+export const userRoutes = router;
