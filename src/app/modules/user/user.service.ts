@@ -110,7 +110,7 @@ const deleteUser = async (id: string) => {
     }
 };
 
-export const userServices = {
+export const UserService = {
     createUser,
     updateUser,
     getAllUsers,
