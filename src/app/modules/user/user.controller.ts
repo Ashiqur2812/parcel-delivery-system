@@ -59,7 +59,25 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
     } catch (error: any) {
         res.status(error.statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
-            message: error.message || 'Failed to retrieved all users'
+            message: error.message || 'Failed to retrieve all users'
+        });
+    }
+});
+
+const getSingleUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const id = req.params.id;
+        const result = await UserService.getSingleUser(id);
+        sendResponse(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: 'User retrieved successfully',
+            data: result
+        });
+    } catch (error: any) {
+        res.status(error.statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || 'Failed to retrieve user'
         });
     }
 });
@@ -67,5 +85,6 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
 export const UserController = {
     createUser,
     updateUser,
-    getAllUsers
+    getAllUsers,
+    getSingleUser
 };
