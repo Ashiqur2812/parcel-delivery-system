@@ -10,6 +10,7 @@ import httpStatus from 'http-status-codes';
 import { createUserToken } from "../../utils/userToken";
 import { setAuthCookie } from "../../utils/setCookie";
 import { sendResponse } from "../../utils/sendResponse";
+import { authService } from "./auth.service";
 
 interface decodedUserToken extends JwtPayload {
     userId: string,
@@ -44,3 +45,28 @@ const credentialLogin = catchAsync(async (req: Request, res: Response, next: Nex
         });
     })(req, res, next);
 });
+
+const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'No refresh token received from cookies');
+    }
+
+    const tokenInfo = await authService.getNewAccessToken(refreshToken as string);
+
+    setAuthCookie(res, tokenInfo);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: 'New access token retrieved successfully',
+        data: tokenInfo
+    });
+});
+
+
+export const authController = {
+    credentialLogin,
+    getNewAccessToken
+};
