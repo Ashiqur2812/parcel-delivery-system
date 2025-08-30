@@ -90,3 +90,11 @@ export const updateUserZodSchema = z.object({
         .optional()
 });
 
+export const blockUserZodSchema = z.object({
+    block: z
+        .boolean()
+        .refine((val) => typeof val === 'boolean',
+            { message: 'block must be a boolean' }
+        )
+})
+
