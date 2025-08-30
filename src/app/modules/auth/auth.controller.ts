@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { JwtPayload } from "jsonwebtoken";
-import { Role } from "../user/user.interface";
+import { IUser, Role } from "../user/user.interface";
 import { catchAsync } from "../../utils/createAsync";
 import { NextFunction, Request, Response } from "express";
 import passport from "passport";
@@ -104,10 +104,26 @@ const resetPassword = catchAsync(async (req: Request, res: Response, next: NextF
     });
 });
 
+const googleCallbackController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const redirect = (req.query.state as string) || '';
+
+    const user = req.user as IUser;
+
+    if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    }
+
+    const tokens = await createUserToken(user);
+    setAuthCookie(res, tokens);
+
+    res.redirect(`${config.FRONTEND_URL}/${redirect}`);
+});
+
 
 export const authController = {
     credentialLogin,
     getNewAccessToken,
     logOut,
-    resetPassword
+    resetPassword,
+    googleCallbackController
 };
