@@ -82,9 +82,50 @@ const getSingleUser = catchAsync(async (req: Request, res: Response, next: NextF
     }
 });
 
+const blockUserController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const { block } = req.body;
+
+        const result = await UserService.blockUser(id, block);
+        sendResponse(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: `User ${block ? 'blocked' : 'unblocked'} successfully`,
+            data: result
+        });
+
+    } catch (error: any) {
+        res.status(error.statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || 'Failed to update user status'
+        });
+    }
+});
+
+const deleteUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const user = await UserService.deleteUser(id);
+        sendResponse(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: 'User deleted successfully',
+            data: user
+        });
+    } catch (error: any) {
+        res.status(error.statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || 'Failed to delete user'
+        });
+    }
+});
+
 export const UserController = {
     createUser,
     updateUser,
     getAllUsers,
-    getSingleUser
+    getSingleUser,
+    blockUserController,
+    deleteUser
 };
