@@ -1,5 +1,5 @@
 import AppError from "../../errorHelper/AppError";
-import { AuthProviderType, IUser, Role } from "./user.interface";
+import { AuthProviderType, IUser, Role, UserStatus } from "./user.interface";
 import { User } from "./user.model";
 import httpStatus from 'http-status-codes';
 import bcryptjs from 'bcryptjs';
@@ -92,9 +92,29 @@ const getSingleUser = async (id: string) => {
     };
 };
 
+const blockUser = async (id: string, block: boolean) => {
+    const user = await User.findById(id);
+    if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    }
+
+    user.status = block ? UserStatus.BLOCKED : UserStatus.ACTIVE;
+    const result = await user.save();
+    return result;
+};
+
+const deleteUser = async (id: string) => {
+    const user = await User.findById(id);
+    if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    }
+};
+
 export const userServices = {
     createUser,
     updateUser,
     getAllUsers,
-    getSingleUser
+    getSingleUser,
+    blockUser,
+    deleteUser
 };
