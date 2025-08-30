@@ -13,7 +13,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import { authService } from "./auth.service";
 import config from '../../config/env';
 
-interface decodedUserToken extends JwtPayload {
+interface DecodedUserToken extends JwtPayload {
     userId: string,
     email: string,
     role: Role;
@@ -89,9 +89,25 @@ const logOut = catchAsync(async (req: Request, res: Response, next: NextFunction
     });
 });
 
+const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { oldPassword, newPassword } = req.body;
+
+    const decodedToken = req.user as unknown as DecodedUserToken;
+
+    await authService.resetPassword(oldPassword, newPassword, decodedToken);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: 'Password updated successfully',
+        data: null
+    });
+});
+
 
 export const authController = {
     credentialLogin,
     getNewAccessToken,
-    logOut
+    logOut,
+    resetPassword
 };
