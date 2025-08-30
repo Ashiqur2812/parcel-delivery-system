@@ -52,8 +52,19 @@ export class QueryBuilder<T> {
         return this.filterObject;
     }
 
-    async exec() {
-        return await this.modelQuery;
+    build() {
+        return this.modelQuery;
+    }
+
+    async getMeta() {
+        const totalUsers = await this.modelQuery.model.countDocuments();
+
+        const page = Number(this.query.page) || 1;
+        const limit = Number(this.query.limit) || 10;
+
+        const totalPage = Math.ceil(totalUsers / limit);
+
+        return { page, limit, total: totalUsers, totalPage };
     }
 
 }
