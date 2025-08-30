@@ -11,6 +11,7 @@ import { createUserToken } from "../../utils/userToken";
 import { setAuthCookie } from "../../utils/setCookie";
 import { sendResponse } from "../../utils/sendResponse";
 import { authService } from "./auth.service";
+import config from '../../config/env';
 
 interface decodedUserToken extends JwtPayload {
     userId: string,
@@ -65,8 +66,32 @@ const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: N
     });
 });
 
+const logOut = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const isProduction = config.NODE_ENV === 'production';
+
+    res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'strict'
+    });
+
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'strict'
+    });
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: 'Log out successful',
+        data: null
+    });
+});
+
 
 export const authController = {
     credentialLogin,
-    getNewAccessToken
+    getNewAccessToken,
+    logOut
 };
