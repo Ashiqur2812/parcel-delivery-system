@@ -1,6 +1,6 @@
 import express from 'express';
 import { validateRequest } from '../../middleware/validationRequest';
-import { blockUserZodSchema, createUserZodSchema, updateUserZodSchema } from './user.validation';
+import { createUserZodSchema, updateUserZodSchema } from './user.validation';
 import { UserController } from './user.controller';
 import { checkAuth } from '../../middleware/checkAuth';
 import { Role } from './user.interface';
@@ -14,7 +14,7 @@ router.get('/all-users', checkAuth(Role.ADMIN), UserController.getAllUsers);
 
 router.get('/:id', checkAuth(Role.ADMIN, Role.SENDER, Role.RECEIVER), UserController.getSingleUser);
 
-router.patch('/block/:id', checkAuth(Role.ADMIN), validateRequest(blockUserZodSchema), UserController.blockUserController);
+router.patch('/block/:id', checkAuth(Role.ADMIN), UserController.blockUserController);
 
 router.delete('/:id', checkAuth(Role.ADMIN), UserController.deleteUser);
 
