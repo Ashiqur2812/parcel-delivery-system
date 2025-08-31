@@ -123,7 +123,7 @@ const blockUser = async (id: string, block: boolean) => {
 };
 
 const deleteUser = async (id: string) => {
-    const user = await User.findById(id);
+    const user = await User.findByIdAndDelete(id);
     if (!user) {
         throw new AppError(httpStatus.NOT_FOUND, 'User not found');
     }
