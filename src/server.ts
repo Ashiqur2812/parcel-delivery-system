@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { Server } from 'http';
 import app from './app';
 import config from '../src/app/config/env'
+import { seedAdmin } from "./app/utils/seedAdmin";
 
 let server: Server;
 
@@ -22,6 +23,7 @@ const startServer = async () => {
 
 (async () => {
     await startServer();
+    await seedAdmin()
 })();
 
 // gracefully shutdown handlers
