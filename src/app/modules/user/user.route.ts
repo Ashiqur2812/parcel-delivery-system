@@ -12,6 +12,8 @@ router.post('/register', validateRequest(createUserZodSchema), UserController.cr
 
 router.get('/all-users', checkAuth(Role.ADMIN), UserController.getAllUsers);
 
+router.get('/:id', checkAuth(Role.ADMIN, Role.SENDER, Role.RECEIVER), UserController.getSingleUser);
+
 router.patch('/block/:id', checkAuth(Role.ADMIN), validateRequest(blockUserZodSchema), UserController.blockUserController);
 
 router.delete('/:id', checkAuth(Role.ADMIN), UserController.deleteUser);
