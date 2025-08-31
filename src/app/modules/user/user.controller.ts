@@ -6,6 +6,7 @@ import httpStatus from 'http-status-codes';
 import { JwtPayload } from "jsonwebtoken";
 import { sendResponse } from "../../utils/sendResponse";
 import { catchAsync } from "../../utils/createAsync";
+import { UserStatus } from "./user.interface";
 
 const createUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -86,13 +87,13 @@ const getSingleUser = catchAsync(async (req: Request, res: Response, next: NextF
 const blockUserController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
-        const { block } = req.body;
+        // const { block } = req.body;
 
-        const result = await UserService.blockUser(id, block);
+        const result = await UserService.blockUser(id);
         sendResponse(res, {
             statusCode: httpStatus.OK,
             success: true,
-            message: `User ${block ? 'blocked' : 'unblocked'} successfully`,
+            message: 'User blocked Successfully',
             data: result
         });
 
