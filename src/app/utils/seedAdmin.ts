@@ -8,10 +8,10 @@ import { IAuthProvider, IUser, Role } from "../modules/user/user.interface";
 
 export const seedAdmin = async () => {
     try {
-        const isUserExist = await User.findOne({ email: config.ADMIN_EMAIL });
+        const isAdminExist = await User.findOne({ email: config.ADMIN_EMAIL });
 
-        if (isUserExist) {
-            throw new AppError(httpStatus.BAD_REQUEST, 'Admin already exist');
+        if (isAdminExist) {
+            throw new AppError(httpStatus.BAD_REQUEST, 'Admin already exist')
         }
 
         console.log('Trying to create admin');

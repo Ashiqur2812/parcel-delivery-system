@@ -28,6 +28,7 @@ const createUser = catchAsync(async (req: Request, res: Response, next: NextFunc
 const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
+        // console.log(id)
         const user = await UserService.updateUser(id, req.body, req.user as JwtPayload);
         sendResponse(res, {
             success: true,
