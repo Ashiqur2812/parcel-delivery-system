@@ -42,11 +42,20 @@ const userSchema = new Schema<IUser>({
     },
     phone: {
         type: String,
+        unique: true,
+        sparse: true,
+        match: [
+            /^(?:\+8801\d{9}|01\d{9})$/,
+            "Please enter a valid Bangladeshi phone number",
+        ],
+    },
+    password: {
+        type: String,
         required: function () {
             return !(this as IUser).authProviders?.length;
         },
         select: false,
-        minLength: 8
+        minlength: 8
     },
     role: {
         type: String,
@@ -66,13 +75,7 @@ const userSchema = new Schema<IUser>({
     }
 }, {
     timestamps: true,
-    versionKey: false,
-    toJSON: {
-        virtuals: true,
-    },
-    toObject: {
-        virtuals: true,
-    },
+    versionKey: false
 });
 
 userSchema.index({ role: 1, status: 1 });

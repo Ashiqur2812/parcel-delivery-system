@@ -22,11 +22,11 @@ const createUser = async (payload: Partial<IUser>) => {
     if (password) {
         hashedPassword = await bcryptjs.hash(password, Number(config.BCRYPT_SALT_ROUND));
     }
+    // console.log(hashedPassword)
 
     const authProvider = {
         provider: AuthProviderType.CREDENTIALS,
-        providerId: email as string,
-        email
+        providerId: email as string
     };
 
     const user = await User.create({

@@ -20,7 +20,8 @@ export const createUserZodSchema = z.object({
         })
         .regex(/[!@#$%^&*(),.?":{}|<>]/, {
             message: "Password must contain at least one special character",
-        }),
+        })
+        .optional(),
 
     phone: z
         .string({ message: 'Phone number must be string' })
