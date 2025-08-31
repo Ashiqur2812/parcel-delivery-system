@@ -75,7 +75,7 @@ export const updateUserZodSchema = z.object({
         .optional(),
 
     role: z
-        .enum([Role.ADMIN, Role.SENDER, Role.RECEIVER]).default(Role.SENDER).optional(),
+        .enum([Role.ADMIN, Role.SENDER, Role.RECEIVER]).optional(),
 
     status: z
         .enum([UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.BLOCKED])
