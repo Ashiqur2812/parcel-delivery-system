@@ -9,7 +9,7 @@ let server: Server;
 const startServer = async () => {
     try {
         await mongoose.connect(config.DB_URL);
-        console.log('Connected to DB');
+        console.log('Connected to mongoDB Database');
 
         server = app.listen(config.PORT, () => {
             console.log(`Server is listening to port ${config.PORT}`);
