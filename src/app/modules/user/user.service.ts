@@ -13,7 +13,8 @@ const createUser = async (payload: Partial<IUser>) => {
     const { email, password, role = Role.SENDER, ...rest } = payload;
 
     const isUserExist = await User.findOne({ email });
-    if (!isUserExist) {
+
+    if (isUserExist) {
         throw new AppError(httpStatus.BAD_REQUEST, 'User already exist');
     }
 
