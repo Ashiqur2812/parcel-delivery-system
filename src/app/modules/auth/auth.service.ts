@@ -19,7 +19,7 @@ const getNewAccessToken = async (refreshToken: string) => {
 };
 
 const resetPassword = async (oldPassword: string, newPassword: string, decoded: JwtPayload): Promise<void> => {
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById(decoded.userId).select('+password')
 
     if (!user || !user.password) {
         throw new AppError(httpStatus.NOT_FOUND, 'User not found or password missing');

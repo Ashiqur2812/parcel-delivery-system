@@ -12,7 +12,7 @@ import { QueryBuilder } from "../../utils/queryBuilder";
 const createUser = async (payload: Partial<IUser>) => {
     const { email, password, role = Role.SENDER, ...rest } = payload;
 
-    const isUserExist = await User.findOne({ email });
+    const isUserExist = await User.findOne({ email }).select('+password');
 
     if (isUserExist) {
         throw new AppError(httpStatus.BAD_REQUEST, 'User already exist');

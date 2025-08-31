@@ -8,6 +8,7 @@ import passport from 'passport';
 import { router } from './app/routes';
 import { globalErrorHandler } from './app/middleware/globalErrorHandler';
 import notFound from './app/middleware/notFound';
+import './app/config/passport'
 const app = express();
 
 app.use(

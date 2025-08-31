@@ -15,7 +15,7 @@ passport.use(new LocalStrategy(
     },
     async (email: string, password: string, done) => {
         try {
-            const isUserExist = await User.findOne({ email });
+            const isUserExist = await User.findOne({ email }).select('+password')
 
             if (!isUserExist) {
                 return done(null, false, { message: 'User does not exist' });
@@ -28,6 +28,7 @@ passport.use(new LocalStrategy(
             }
 
             const isPasswordMatched = await bcryptjs.compare(password as string, isUserExist.password as string);
+            // console.log(isPasswordMatched)
 
             if (!isPasswordMatched) {
                 done(null, false, { message: 'Password does not match' });
