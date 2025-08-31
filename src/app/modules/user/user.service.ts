@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AppError from "../../errorHelper/AppError";
 import { IAuthProvider, IUser, Role, UserStatus } from "./user.interface";
 import { User } from "./user.model";
@@ -48,20 +49,37 @@ const updateUser = async (id: string, payload: Partial<IUser>, decodedToken: Jwt
         throw new AppError(httpStatus.NOT_FOUND, 'User not found');
     }
 
-    const userId = decodedToken.id || decodedToken.userId;
+    // const userId = decodedToken.id || decodedToken.userId;
+    const userId = (decodedToken as any)._id || (decodedToken as any).id || (decodedToken as any).userId;
+
     // check ownerShip of admin privileges
-    if (userId !== id && userId.role !== Role.ADMIN) {
+    // if (userId !== id && userId.role !== Role.ADMIN) {
+    //     throw new AppError(httpStatus.FORBIDDEN, 'You can only update your own profile');
+    // }
+
+    if (userId !== id && decodedToken.role !== Role.ADMIN) {
         throw new AppError(httpStatus.FORBIDDEN, 'You can only update your own profile');
     }
 
     // only admin can change role and status
+
     if (payload.role && decodedToken.role !== Role.ADMIN) {
+        throw new AppError(httpStatus.FORBIDDEN, 'Only admin can change role');
+    }
+
+    if (payload.status && decodedToken.role !== Role.ADMIN) {
         throw new AppError(httpStatus.FORBIDDEN, 'Only admin can change status');
     }
 
     // Hash password
     if (payload.password) {
         payload.password = await bcryptjs.hash(payload.password, Number(config.BCRYPT_SALT_ROUND));
+    }
+
+    // if role field is not found and then update will not be in the payload
+
+    if (!Object.prototype.hasOwnProperty.call(payload, 'role')) {
+        delete (payload as any).role;
     }
 
     const updatedUser = await User.findByIdAndUpdate(id, payload, { new: true, runValidators: true });
