@@ -1,5 +1,5 @@
 import AppError from "../../errorHelper/AppError";
-import { AuthProviderType, IUser, Role, UserStatus } from "./user.interface";
+import { IAuthProvider, IUser, Role, UserStatus } from "./user.interface";
 import { User } from "./user.model";
 import httpStatus from 'http-status-codes';
 import bcryptjs from 'bcryptjs';
@@ -24,8 +24,8 @@ const createUser = async (payload: Partial<IUser>) => {
     }
     // console.log(hashedPassword)
 
-    const authProvider = {
-        provider: AuthProviderType.CREDENTIALS,
+    const authProvider: IAuthProvider = {
+        provider: 'credentials',
         providerId: email as string
     };
 

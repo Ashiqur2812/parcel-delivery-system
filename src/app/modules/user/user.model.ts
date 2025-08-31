@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { AuthProviderType, IUser, Role, UserStatus } from "./user.interface";
+import { IUser, Role, UserStatus } from "./user.interface";
 
 
 const addressSchema = new Schema({
@@ -12,7 +12,6 @@ const addressSchema = new Schema({
 const authProviderSchema = new Schema({
     provider: {
         type: String,
-        enum: Object.values(AuthProviderType),
         required: true
     },
     providerId: {

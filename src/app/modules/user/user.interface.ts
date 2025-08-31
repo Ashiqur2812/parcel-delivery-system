@@ -4,16 +4,11 @@ export enum Role {
     RECEIVER = 'RECEIVER'
 }
 
-export enum AuthProviderType {
-    GOOGLE = 'google',
-    CREDENTIALS = 'credentials'
+export interface IAuthProvider {
+    provider: "google" | "credentials"; 
+    providerId: string;
 }
 
-export interface IAuthProvider {
-    provider: AuthProviderType,
-    providerId: string,
-    email?: string;
-}
 
 export enum UserStatus {
     ACTIVE = 'ACTIVE',
