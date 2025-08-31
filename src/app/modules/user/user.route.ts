@@ -4,7 +4,7 @@ import { blockUserZodSchema, createUserZodSchema, updateUserZodSchema } from './
 import { UserController } from './user.controller';
 import { checkAuth } from '../../middleware/checkAuth';
 import { Role } from './user.interface';
-import { checkUserOwnerOrAdmin } from '../../middleware/checkUserOwnerOrAdmin';
+// import { checkUserOwnerOrAdmin } from '../../middleware/checkUserOwnerOrAdmin';
 
 const router = express.Router();
 
@@ -16,6 +16,6 @@ router.patch('/block/:id', checkAuth(Role.ADMIN), validateRequest(blockUserZodSc
 
 router.delete('/:id', checkAuth(Role.ADMIN), UserController.deleteUser);
 
-router.patch('/:id', validateRequest(updateUserZodSchema), checkAuth(Role.ADMIN, Role.SENDER, Role.RECEIVER), checkUserOwnerOrAdmin, UserController.updateUser);
+router.patch('/:id', checkAuth(Role.ADMIN, Role.SENDER, Role.RECEIVER), validateRequest(updateUserZodSchema), UserController.updateUser);
 
 export const userRoutes = router;
