@@ -106,20 +106,22 @@ const getAllUsers = async (query: Record<string, string>) => {
 
 const getSingleUser = async (id: string) => {
     const user = await User.findById(id);
-    return {
-        data: user
-    };
+    return user;
 };
 
-const blockUser = async (id: string, block: boolean) => {
+const blockUser = async (id: string) => {
     const user = await User.findById(id);
     if (!user) {
         throw new AppError(httpStatus.NOT_FOUND, 'User not found');
     }
 
-    user.status = block ? UserStatus.BLOCKED : UserStatus.ACTIVE;
-    const result = await user.save();
-    return result;
+    if (user.status === UserStatus.BLOCKED) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'User already blocked');
+    }
+
+    user.status = UserStatus.BLOCKED;
+    await user.save();
+    return null;
 };
 
 const deleteUser = async (id: string) => {
