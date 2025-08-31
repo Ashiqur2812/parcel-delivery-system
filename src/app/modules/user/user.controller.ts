@@ -107,12 +107,12 @@ const blockUserController = catchAsync(async (req: Request, res: Response, next:
 const deleteUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
-        const user = await UserService.deleteUser(id);
+        await UserService.deleteUser(id);
         sendResponse(res, {
             statusCode: httpStatus.OK,
             success: true,
             message: 'User deleted successfully',
-            data: user
+            data: null
         });
     } catch (error: any) {
         res.status(error.statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({
