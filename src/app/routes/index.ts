@@ -6,12 +6,12 @@ export const router = Router();
 
 const moduleRoutes = [
     {
-        path: '/auth',
-        route: AuthRoutes
-    },
-    {
         path: '/user',
         route: userRoutes
+    },
+    {
+        path: '/auth',
+        route: AuthRoutes
     }
 ];
 

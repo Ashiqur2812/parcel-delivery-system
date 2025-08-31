@@ -5,8 +5,8 @@ import httpStatus from 'http-status-codes';
 import bcryptjs from 'bcryptjs';
 import config from '../../config/env';
 import { JwtPayload } from "jsonwebtoken";
-import { QueryBuilder } from "../../utils/QueryBuilder";
 import { userSearchAbleFields } from "./user.constant";
+import { QueryBuilder } from "../../utils/queryBuilder";
 
 
 const createUser = async (payload: Partial<IUser>) => {
