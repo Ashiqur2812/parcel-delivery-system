@@ -11,7 +11,7 @@ const parcelStatusLogSchema = new Schema<IParcelStatusLog>({
     timestamp: { type: Date, default: Date.now() },
     updatedBy: { type: Types.ObjectId, ref: 'User', required: true },
     location: { type: String },
-    note: { type: String }
+    notes: { type: String }
 }, {
     _id: false, versionKey: false
 });

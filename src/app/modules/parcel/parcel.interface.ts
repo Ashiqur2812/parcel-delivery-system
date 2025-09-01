@@ -26,7 +26,7 @@ export interface IParcelStatusLog {
     timestamp: Date,
     updatedBy: Types.ObjectId | IUser['_id'],
     location?: string,
-    note?: string;
+    notes?: string;
 }
 
 export interface IParcel {
