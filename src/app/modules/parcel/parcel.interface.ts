@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { IUser } from "../user/user.interface";
 
-export enum parcelStatus {
+export enum ParcelStatus {
     REQUESTED = 'REQUESTED',
     APPROVED = 'APPROVED',
     DISPATCHED = 'DISPATCHED',
@@ -13,7 +13,7 @@ export enum parcelStatus {
     BLOCKED = 'BLOCKED'
 }
 
-export enum parcelType {
+export enum ParcelType {
     DOCUMENT = 'DOCUMENT',
     PACKAGE = 'PACKAGE',
     FRAGILE = 'FRAGILE',
@@ -22,7 +22,7 @@ export enum parcelType {
 }
 
 export interface IParcelStatusLog {
-    status: parcelStatus,
+    status: ParcelStatus,
     timestamp: Date,
     updatedBy: Types.ObjectId | IUser['_id'],
     location?: string,
@@ -32,7 +32,7 @@ export interface IParcelStatusLog {
 export interface IParcel {
     _id?: Types.ObjectId,
     trackingId: string,
-    type: parcelType,
+    type: ParcelType,
     weight: number,
     price: number,
     deliveryCharge: number,
@@ -42,7 +42,7 @@ export interface IParcel {
     senderAddress: string,
     receiverAddress: string,
     deliveryDate?: Date,
-    status: parcelStatus,
+    status: ParcelStatus,
     statusLogs: IParcelStatusLog[],
     isBlocked: boolean,
     isPaid?: boolean,
@@ -53,8 +53,8 @@ export interface IParcel {
 }
 
 export interface ParcelFilter {
-    status?: parcelStatus,
-    type?: parcelType,
+    status?: ParcelStatus,
+    type?: ParcelType,
     sender?: string,
     receiver?: string,
     trackingId?: string,
