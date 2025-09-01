@@ -1,3 +1,3 @@
-import { ParcelStatus } from "./parcel.interface";
+export const parcelSearchAbleFields = ['trackingId', 'type', 'status'];
 
-export const FINAL_STATUSES = [ParcelStatus.DELIVERED, ParcelStatus.CANCELLED, ParcelStatus.RETURNED];
+export const parcelSearchFields = ['trackingId', 'status'];

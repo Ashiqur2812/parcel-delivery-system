@@ -1,12 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Types } from "mongoose";
-import { FINAL_STATUSES } from "./parcel.constant";
+import { parcelSearchAbleFields, parcelSearchFields } from "./parcel.constant";
 import { IParcel, ParcelStatus } from "./parcel.interface";
 import { User } from "../user/user.model";
 import AppError from "../../errorHelper/AppError";
 import httpStatus from 'http-status-codes';
 import { DeliveryChargeService } from "../deliveryCharge/deliveryCharge.service";
 import { Parcel } from "./parcel.model";
+import { QueryBuilder } from "../../utils/queryBuilder";
 
 const generateTrackingId = () => {
     const random = Math.floor(Math.random() * 900000 + 100000);
@@ -22,8 +23,11 @@ const VALID_STATUS_TRANSITIONS: Record<ParcelStatus, ParcelStatus[]> = {
     [ParcelStatus.IN_TRANSIT]: [ParcelStatus.OUT_FOR_DELIVERY, ParcelStatus.RETURNED],
     [ParcelStatus.OUT_FOR_DELIVERY]: [ParcelStatus.DELIVERED, ParcelStatus.RETURNED],
     [ParcelStatus.BLOCKED]: [ParcelStatus.APPROVED],
-    ...Object.fromEntries(FINAL_STATUSES.map(status => [status, []])),
+    [ParcelStatus.DELIVERED]: [],
+    [ParcelStatus.CANCELLED]: [],
+    [ParcelStatus.RETURNED]: [],
 };
+
 
 
 const calculateTotalAmount = (price: number, deliveryCharge: number): number => {
@@ -68,6 +72,127 @@ const createParcel = async (payload: Partial<IParcel>, userId: string) => {
 
 };
 
+const getAllParcels = async (query: Record<string, string>) => {
+    const queryBuilder = new QueryBuilder(Parcel.find().populate('sender receiver', 'name email phone'), query);
+
+    const parcelData = queryBuilder
+        .filter()
+        .search(parcelSearchAbleFields)
+        .sort()
+        .paginate();
+
+    const [data, meta] = await Promise.all([
+        parcelData.build(),
+        parcelData.getMeta()
+    ]);
+
+    return { data, meta };
+
+};
+
+const getParcelsBySender = async (senderId: string, query: Record<string, string>) => {
+    const baseQuery = { sender: new Types.ObjectId(senderId) };
+
+    const queryBuilder = new QueryBuilder(Parcel.find(baseQuery).populate('receiver', 'name email phone'), query);
+
+    const parcelData = queryBuilder
+        .filter()
+        .search(parcelSearchFields)
+        .sort()
+        .paginate();
+
+    const [data, meta] = await Promise.all([
+        parcelData.build(),
+        parcelData.getMeta()
+    ]);
+
+    return { data, meta };
+
+};
+
+const getParcelByReceiver = async (receiverId: string, query: Record<string, string>) => {
+    const baseQuery = { receiver: new Types.ObjectId(receiverId) };
+
+    const parcelQuery = new QueryBuilder(Parcel.find(baseQuery).populate('sender', 'name email phone'), query);
+
+    const parcelData = parcelQuery
+        .filter()
+        .search(parcelSearchFields)
+        .sort()
+        .paginate();
+
+    const [data, meta] = await Promise.all([
+        parcelData.build(),
+        parcelData.getMeta()
+    ]);
+
+    return { data, meta };
+
+};
+
+const getParcelByTrackingId = async (trackingId: string): Promise<IParcel | null> => {
+    return Parcel.findOne({ trackingId })
+        .populate('sender', 'name email phone address')
+        .populate('receiver', 'name email phone address')
+        .populate('assignedDriver', 'name email phone');
+};
+
+const getParcelById = async (id: string): Promise<IParcel | null> => {
+    return Parcel.findOne({ id })
+        .populate('sender', 'name email phone address')
+        .populate('receiver', 'name email phone address')
+        .populate('assignedDriver', 'name email phone');
+};
+
+const updateParcelStatus = async (
+    parcelId: string,
+    status: ParcelStatus,
+    updatedBy: Types.ObjectId,
+    notes?: string,
+    location?: string
+): Promise<IParcel | null> => {
+    const parcel = await Parcel.findById(parcelId);
+    if (!parcel) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Parcel not found');
+    }
+
+    const currentStatus = parcel.status;
+    const allowedNextStatuses = VALID_STATUS_TRANSITIONS[currentStatus];
+
+    if (!allowedNextStatuses.includes(status)) {
+        throw new AppError(httpStatus.BAD_REQUEST,
+            `Invalid status transition: ${currentStatus} -> ${status}`
+        );
+    }
+
+    const statusUpdate = {
+        status,
+        updatedBy,
+        timestamp: new Date(),
+        notes,
+        location
+    };
+
+    const updateData: any = {
+        status,
+        $push: { statusLogs: statusUpdate }
+    };
+
+    if (status === ParcelStatus.DELIVERED) {
+        updateData.actualDeliveryDate = new Date();
+    }
+
+    return Parcel.findByIdAndUpdate(parcelId, updateData, { new: true, runValidators: true }).populate('sender receiver', 'name email phone');
+
+};
+
+
 export const ParcelService = {
-    createParcel
-}
+    createParcel,
+    getAllParcels,
+    getParcelsBySender,
+    getParcelByReceiver,
+    getParcelByTrackingId,
+    getParcelById,
+    updateParcelStatus
+};
