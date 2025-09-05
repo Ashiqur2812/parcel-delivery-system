@@ -214,6 +214,33 @@ const cancelParcel = async (parcelId: string, userId: string): Promise<IParcel |
 
 };
 
+const confirmDelivery = async (parcelId: string, receiverId: string): Promise<IParcel | null> => {
+    const parcel = await Parcel.findById(parcelId);
+    if (!parcel) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Parcel not found');
+    }
+
+    // verify receiver
+    const isReceiver = parcel.receiver?.toString() === receiverId;
+    if (!isReceiver) {
+        throw new AppError(httpStatus.FORBIDDEN, 'Only can receiver can confirm the delivery');
+    }
+
+    if (parcel.status !== ParcelStatus.OUT_FOR_DELIVERY) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Parcel is not out fpr delivery');
+    }
+
+    const id = new Types.ObjectId(receiverId);
+
+    return updateParcelStatus(
+        parcelId,
+        ParcelStatus.DELIVERED,
+        id,
+        'Delivery confirmed by receiver'
+    );
+
+};
+
 
 export const ParcelService = {
     createParcel,
@@ -223,5 +250,6 @@ export const ParcelService = {
     getParcelByTrackingId,
     getParcelById,
     updateParcelStatus,
-    cancelParcel
+    cancelParcel,
+    confirmDelivery
 };
