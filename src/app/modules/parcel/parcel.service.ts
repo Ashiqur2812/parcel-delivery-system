@@ -241,6 +241,27 @@ const confirmDelivery = async (parcelId: string, receiverId: string): Promise<IP
 
 };
 
+const deleteParcel = async (parcelId: string): Promise<IParcel | null> => {
+    const parcel = await Parcel.findById(parcelId);
+    if (!parcel) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Parcel not found');
+    }
+
+    const parcelNonDeletable = [
+        ParcelStatus.DISPATCHED,
+        ParcelStatus.IN_TRANSIT,
+        ParcelStatus.OUT_FOR_DELIVERY,
+        ParcelStatus.DELIVERED
+    ];
+
+    const isProtected = parcelNonDeletable.includes(parcel.status);
+    if (isProtected) {
+        throw new AppError(httpStatus.BAD_REQUEST, `Parcel in ${parcel.status} cannot be deleted`);
+    }
+
+    return Parcel.findByIdAndDelete(parcelId);
+};
+
 
 export const ParcelService = {
     createParcel,
@@ -251,5 +272,6 @@ export const ParcelService = {
     getParcelById,
     updateParcelStatus,
     cancelParcel,
-    confirmDelivery
+    confirmDelivery,
+    deleteParcel
 };
