@@ -307,6 +307,54 @@ const updatePaymentStatus = async (parcelId: string, isPaid: boolean, paymentMet
     return Parcel.findByIdAndUpdate(parcelId, updateData, { new: true, runValidators: true }).populate('sender receiver', 'name email phone');
 };
 
+const getParcelStatistics = async (): Promise<{
+    total: number,
+    delivered: number,
+    inTransit: number,
+    cancelled: number,
+    revenue: number,
+    pending: number;
+}> => {
+    const [total, delivered, inTransit, cancelled, pending, revenue] = await Promise.all([
+        Parcel.countDocuments(),
+        Parcel.countDocuments({ status: ParcelStatus.DELIVERED }),
+        Parcel.countDocuments({
+            status: {
+                $in: [
+                    ParcelStatus.IN_TRANSIT,
+                    ParcelStatus.OUT_FOR_DELIVERY,
+                    ParcelStatus.DISPATCHED
+                ]
+            }
+        }),
+        Parcel.countDocuments({ status: ParcelStatus.CANCELLED }),
+        Parcel.countDocuments({ status: ParcelStatus.REQUESTED }),
+        Parcel.aggregate([
+            {
+                $match: {
+                    status: ParcelStatus.DELIVERED,
+                    isPaid: true
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: '$totalAmount' }
+                }
+            }
+        ])
+    ]);
+
+    return {
+        total,
+        delivered,
+        inTransit,
+        cancelled,
+        pending,
+        revenue: revenue[0]?.total || 0
+    };
+};
+
 
 export const ParcelService = {
     createParcel,
@@ -320,5 +368,6 @@ export const ParcelService = {
     confirmDelivery,
     deleteParcel,
     blockUnblockParcel,
-    updatePaymentStatus
+    updatePaymentStatus,
+    getParcelStatistics
 };
