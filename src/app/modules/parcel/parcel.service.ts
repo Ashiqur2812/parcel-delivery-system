@@ -186,6 +186,34 @@ const updateParcelStatus = async (
 
 };
 
+const cancelParcel = async (parcelId: string, userId: string): Promise<IParcel | null> => {
+    const parcel = await Parcel.findById(parcelId);
+    if (!parcel) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Parcel not found');
+    }
+
+    // Check Ownership
+    if (parcel.sender?.toString() !== userId) {
+        throw new AppError(httpStatus.FORBIDDEN, 'You can only cancel your own parcels');
+    }
+
+    const cancellableStatuses = [ParcelStatus.REQUESTED, ParcelStatus.APPROVED];
+
+    if (!cancellableStatuses.includes(parcel.status)) {
+        throw new AppError(httpStatus.BAD_REQUEST, `You cannot cancel parcel ${parcel.status} status`);
+    }
+
+    const id = new Types.ObjectId(userId);
+
+    return updateParcelStatus(
+        parcelId,
+        ParcelStatus.CANCELLED,
+        id,
+        'Parcel cancelled by sender'
+    );
+
+};
+
 
 export const ParcelService = {
     createParcel,
@@ -194,5 +222,6 @@ export const ParcelService = {
     getParcelByReceiver,
     getParcelByTrackingId,
     getParcelById,
-    updateParcelStatus
+    updateParcelStatus,
+    cancelParcel
 };
