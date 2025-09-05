@@ -262,6 +262,30 @@ const deleteParcel = async (parcelId: string): Promise<IParcel | null> => {
     return Parcel.findByIdAndDelete(parcelId);
 };
 
+const blockUnblockParcel = async (parcelId: string, block: boolean, reason?: string): Promise<IParcel | null> => {
+    const parcel = await Parcel.findById(parcelId);
+    if (!parcel) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Parcel not found');
+    }
+
+    const status = block ? ParcelStatus.BLOCKED : ParcelStatus.APPROVED;
+
+    const updateData = {
+        isBlocked: block,
+        status,
+        $push: {
+            statusLogs: {
+                status,
+                updatedBy: new Types.ObjectId(),
+                timestamp: new Date(),
+                note: reason || `Parcel ${block ? 'blocked' : 'unblocked'} by admin`
+            }
+        }
+    };
+
+    return Parcel.findByIdAndUpdate(parcelId, updateData, { new: true, runValidators: true }).populate('sender receiver', 'name email phone');
+};
+
 
 export const ParcelService = {
     createParcel,
@@ -273,5 +297,6 @@ export const ParcelService = {
     updateParcelStatus,
     cancelParcel,
     confirmDelivery,
-    deleteParcel
+    deleteParcel,
+    blockUnblockParcel
 };
