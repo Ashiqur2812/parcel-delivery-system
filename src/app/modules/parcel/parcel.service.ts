@@ -286,6 +286,27 @@ const blockUnblockParcel = async (parcelId: string, block: boolean, reason?: str
     return Parcel.findByIdAndUpdate(parcelId, updateData, { new: true, runValidators: true }).populate('sender receiver', 'name email phone');
 };
 
+const updatePaymentStatus = async (parcelId: string, isPaid: boolean, paymentMethod?: string): Promise<IParcel | null> => {
+
+    const statusNote = `Payment ${isPaid ? "completed" : "pending"}${paymentMethod ? ` via ${paymentMethod}` : ""
+        }`;
+
+    const updateData = {
+        isPaid,
+        paymentMethod,
+        $push: {
+            statusLogs: {
+                status: ParcelStatus.APPROVED,
+                updatedBy: new Types.ObjectId(),
+                timestamp: new Date(),
+                note: statusNote
+            }
+        }
+    };
+
+    return Parcel.findByIdAndUpdate(parcelId, updateData, { new: true, runValidators: true }).populate('sender receiver', 'name email phone');
+};
+
 
 export const ParcelService = {
     createParcel,
@@ -298,5 +319,6 @@ export const ParcelService = {
     cancelParcel,
     confirmDelivery,
     deleteParcel,
-    blockUnblockParcel
+    blockUnblockParcel,
+    updatePaymentStatus
 };
