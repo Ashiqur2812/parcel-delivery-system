@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Types } from "mongoose";
 import { parcelSearchAbleFields, parcelSearchFields } from "./parcel.constant";
-import { IParcel, ParcelStatus } from "./parcel.interface";
+import { IParcel, ParcelFilter, ParcelStatus } from "./parcel.interface";
 import { User } from "../user/user.model";
 import AppError from "../../errorHelper/AppError";
 import httpStatus from 'http-status-codes';
@@ -355,6 +355,36 @@ const getParcelStatistics = async (): Promise<{
     };
 };
 
+const searchParcels = (filters: ParcelFilter): Promise<IParcel[]> => {
+    const query: any = {};
+
+    // Tracking Id (case insensitive search)
+    if (filters.trackingId) {
+        query.trackingId = { $regex: filters.trackingId, $options: 'i' };
+    }
+
+    // Basic filters
+    if (filters.status) query.status = filters.status;
+    if (filters.type) query.type = filters.type;
+
+    // sender and receiver
+    if (filters.sender) query.sender = new Types.ObjectId(filters.sender);
+    if (filters.receiver) query.receiver = new Types.ObjectId(filters.receiver);
+
+    // Date filter
+    if (filters.dateFrom || filters.dateTo) {
+        query.createdAt = {
+            ...(filters.dateFrom && { $gte: new Date(filters.dateFrom) }),
+            ...(filters.dateTo && { $lte: new Date(filters.dateTo) })
+        };
+    }
+
+    return Parcel.find(query)
+        .populate('sender receiver', 'name email phone')
+        .sort({ createdAt: -1 })
+        .limit(50);
+};
+
 
 export const ParcelService = {
     createParcel,
@@ -369,5 +399,6 @@ export const ParcelService = {
     deleteParcel,
     blockUnblockParcel,
     updatePaymentStatus,
-    getParcelStatistics
+    getParcelStatistics,
+    searchParcels
 };
