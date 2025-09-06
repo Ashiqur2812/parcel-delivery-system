@@ -372,11 +372,23 @@ const searchParcels = (filters: ParcelFilter): Promise<IParcel[]> => {
     if (filters.receiver) query.receiver = new Types.ObjectId(filters.receiver);
 
     // Date filter
+    // if (filters.dateFrom || filters.dateTo) {
+    //     query.createdAt = {
+    //         ...(filters.dateFrom && { $gte: new Date(filters.dateFrom) }),
+    //         ...(filters.dateTo && { $lte: new Date(filters.dateTo) })
+    //     };
+    // }
+
     if (filters.dateFrom || filters.dateTo) {
-        query.createdAt = {
-            ...(filters.dateFrom && { $gte: new Date(filters.dateFrom) }),
-            ...(filters.dateTo && { $lte: new Date(filters.dateTo) })
-        };
+        query.createdAt = {};
+    }
+
+    if (filters.dateFrom) {
+        query.createdAt.$gte = new Date(filters.dateFrom);
+    }
+
+    if (filters.dateTo) {
+        query.createdAt.$lte = new Date(filters.dateTo);
     }
 
     return Parcel.find(query)
