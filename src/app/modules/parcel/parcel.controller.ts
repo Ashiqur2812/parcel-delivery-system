@@ -55,8 +55,31 @@ const getAllParcels = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
+const getParcelById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+
+        const parcel = await ParcelService.getParcelById(id);
+
+        if (!parcel) {
+            throw new AppError(httpStatus.NOT_FOUND, 'Parcel not found');
+        }
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Parcel retrieved successfully',
+            data: parcel
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
     createParcel,
-    getAllParcels
+    getAllParcels,
+    getParcelById
 };
