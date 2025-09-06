@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../errorHelper/AppError";
 import httpStatus from 'http-status-codes';
@@ -39,7 +38,25 @@ const createParcel = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
+const getAllParcels = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const query = req.query;
+        const result = await ParcelService.getAllParcels(query as Record<string, string>);
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Parcels retrieved successfully',
+            data: result
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
-
+    createParcel,
+    getAllParcels
 };
