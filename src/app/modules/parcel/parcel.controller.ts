@@ -77,9 +77,29 @@ const getParcelById = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
+const getParcelsBySender = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const senderId = getUserId(req);
+
+        const query = req.query;
+        const result = await ParcelService.getParcelsBySender(senderId, query as Record<string, string>);
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Sender parcels retrieved successfully',
+            data: result
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
     createParcel,
     getAllParcels,
-    getParcelById
+    getParcelById,
+    getParcelsBySender
 };
