@@ -184,6 +184,25 @@ const cancelParcel = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
+const confirmDelivery = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const receiverId = getUserId(req);
+
+        const parcel = await ParcelService.confirmDelivery(id, receiverId);
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Delivery confirmed successfully',
+            data: parcel
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
     createParcel,
@@ -193,5 +212,6 @@ export const ParcelController = {
     getParcelsByReceiver,
     getParcelByTrackingId,
     updateParcelStatus,
-    cancelParcel
+    cancelParcel,
+    confirmDelivery
 };
