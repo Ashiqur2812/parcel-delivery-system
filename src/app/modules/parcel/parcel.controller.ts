@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../errorHelper/AppError";
 import httpStatus from 'http-status-codes';
@@ -275,6 +276,22 @@ const getParcelStatistics = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
+const searchParcels = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const parcel = await ParcelService.searchParcels(req.query as any);
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Parcels search completed successfully',
+            data: parcel
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
     createParcel,
@@ -289,5 +306,6 @@ export const ParcelController = {
     deleteParcel,
     blockUnblockParcel,
     updatePaymentStatus,
-    getParcelStatistics
+    getParcelStatistics,
+    searchParcels
 };
