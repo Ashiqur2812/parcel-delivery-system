@@ -240,6 +240,25 @@ const blockUnblockParcel = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
+const updatePaymentStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const { isPaid, paymentMethod } = req.body;
+
+        const parcel = await ParcelService.updatePaymentStatus(id, isPaid, paymentMethod);
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.CREATED,
+            message: `Payment status updated to ${isPaid ? 'paid' : 'pending'}`,
+            data: parcel
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
     createParcel,
@@ -252,5 +271,6 @@ export const ParcelController = {
     cancelParcel,
     confirmDelivery,
     deleteParcel,
-    blockUnblockParcel
+    blockUnblockParcel,
+    updatePaymentStatus
 };
