@@ -98,7 +98,7 @@ export const paymentValidationSchema = z.object({
         .optional()
 });
 
-export const parcelValidation = {
+export const ParcelValidation = {
     createParcelValidationSchema,
     updateParcelValidationSchema,
     updateParcelStatusValidationSchema,
