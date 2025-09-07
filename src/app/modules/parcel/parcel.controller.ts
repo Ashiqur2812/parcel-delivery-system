@@ -259,6 +259,22 @@ const updatePaymentStatus = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
+const getParcelStatistics = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const parcel = await ParcelService.getParcelStatistics();
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Parcel statistics retrieved successfully',
+            data: parcel
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
     createParcel,
@@ -272,5 +288,6 @@ export const ParcelController = {
     confirmDelivery,
     deleteParcel,
     blockUnblockParcel,
-    updatePaymentStatus
+    updatePaymentStatus,
+    getParcelStatistics
 };
