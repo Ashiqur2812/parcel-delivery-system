@@ -3,6 +3,7 @@ import AppError from "../../errorHelper/AppError";
 import httpStatus from 'http-status-codes';
 import { ParcelService } from "./parcel.service";
 import { sendResponse } from "../../utils/sendResponse";
+import mongoose from "mongoose";
 
 const getUserId = (req: Request): string => {
     // const userId = req.user?.userId
@@ -137,6 +138,32 @@ const getParcelByTrackingId = async (req: Request, res: Response, next: NextFunc
     }
 };
 
+const updateParcelStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const { status, notes, location } = req.body;
+        const updatedBy = new mongoose.Types.ObjectId(getUserId(req));
+
+        const parcel = await ParcelService.updateParcelStatus(
+            id,
+            status,
+            updatedBy,
+            notes,
+            location
+        );
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.CREATED,
+            message: 'Parcel status updated successfully',
+            data: parcel
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
     createParcel,
@@ -144,5 +171,6 @@ export const ParcelController = {
     getParcelById,
     getParcelsBySender,
     getParcelsByReceiver,
-    getParcelByTrackingId
+    getParcelByTrackingId,
+    updateParcelStatus
 };
