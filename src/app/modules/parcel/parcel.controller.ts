@@ -115,11 +115,34 @@ const getParcelsByReceiver = async (req: Request, res: Response, next: NextFunct
     }
 };
 
+const getParcelByTrackingId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { trackingId } = req.params;
+
+        const parcel = await ParcelService.getParcelByTrackingId(trackingId);
+
+        if (!parcel) {
+            throw new AppError(httpStatus.NOT_FOUND, 'Parcel not found');
+        }
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Parcel retrieved successfully',
+            data: parcel
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
     createParcel,
     getAllParcels,
     getParcelById,
     getParcelsBySender,
-    getParcelsByReceiver
+    getParcelsByReceiver,
+    getParcelByTrackingId
 };
