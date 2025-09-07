@@ -110,7 +110,7 @@ const getParcelsBySender = async (senderId: string, query: Record<string, string
 
 };
 
-const getParcelByReceiver = async (receiverId: string, query: Record<string, string>) => {
+const getParcelsByReceiver = async (receiverId: string, query: Record<string, string>) => {
     const baseQuery = { receiver: new Types.ObjectId(receiverId) };
 
     const parcelQuery = new QueryBuilder(Parcel.find(baseQuery).populate('sender', 'name email phone'), query);
@@ -402,7 +402,7 @@ export const ParcelService = {
     createParcel,
     getAllParcels,
     getParcelsBySender,
-    getParcelByReceiver,
+    getParcelsByReceiver,
     getParcelByTrackingId,
     getParcelById,
     updateParcelStatus,
