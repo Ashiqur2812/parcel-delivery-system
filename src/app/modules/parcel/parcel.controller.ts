@@ -220,6 +220,26 @@ const deleteParcel = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
+const blockUnblockParcel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const { id } = req.params;
+        const { block, reason } = req.body;
+
+        const parcel = await ParcelService.blockUnblockParcel(id, block, reason);
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: `parcel ${block ? 'blocked' : 'unblocked'} successfully`,
+            data: parcel
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
     createParcel,
@@ -231,5 +251,6 @@ export const ParcelController = {
     updateParcelStatus,
     cancelParcel,
     confirmDelivery,
-    deleteParcel
+    deleteParcel,
+    blockUnblockParcel
 };
