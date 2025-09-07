@@ -203,6 +203,23 @@ const confirmDelivery = async (req: Request, res: Response, next: NextFunction) 
     }
 };
 
+const deleteParcel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const parcel = await ParcelService.deleteParcel(id);
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: 'Parcel deleted successfully',
+            data: parcel
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const ParcelController = {
     createParcel,
@@ -213,5 +230,6 @@ export const ParcelController = {
     getParcelByTrackingId,
     updateParcelStatus,
     cancelParcel,
-    confirmDelivery
+    confirmDelivery,
+    deleteParcel
 };
