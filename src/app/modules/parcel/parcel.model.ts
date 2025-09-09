@@ -1,6 +1,5 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 import { IParcel, IParcelStatusLog, ParcelStatus, ParcelType } from "./parcel.interface";
-import { Types } from "mongoose";
 
 const parcelStatusLogSchema = new Schema<IParcelStatusLog>({
     status: {
@@ -15,6 +14,7 @@ const parcelStatusLogSchema = new Schema<IParcelStatusLog>({
 }, {
     _id: false, versionKey: false
 });
+
 
 const parcelSchema = new Schema<IParcel>({
     trackingId: { type: String, required: true, unique: true },
