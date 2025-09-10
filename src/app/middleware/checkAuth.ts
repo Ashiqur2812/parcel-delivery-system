@@ -4,7 +4,8 @@ import AppError from "../errorHelper/AppError";
 import httpStatus from 'http-status-codes';
 import { verifyToken } from "../utils/jwt";
 import config from '../config/env';
-import { AuthPayload } from "../interfaces";
+import { JwtPayload } from "jsonwebtoken";
+// import { AuthPayload } from "../interfaces";
 
 export const checkAuth = (...authRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -26,13 +27,13 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
         const verifiedToken = verifyToken(
             token,
             config.JWT_ACCESS_SECRET
-        ) as AuthPayload | null;
+        ) as JwtPayload
 
         if (!verifiedToken) {
             throw new AppError(httpStatus.FORBIDDEN, 'Invalid token payload');
         }
 
-        if (authRoles.length && !authRoles.includes(verifiedToken.role)) {
+        if (!authRoles.includes(verifiedToken?.role)) {
             throw new AppError(httpStatus.FORBIDDEN, 'You are not permitted to view this route');
         }
 

@@ -28,15 +28,13 @@ const VALID_STATUS_TRANSITIONS: Record<ParcelStatus, ParcelStatus[]> = {
     [ParcelStatus.RETURNED]: [],
 };
 
-
-
 const calculateTotalAmount = (price: number, deliveryCharge: number): number => {
     return price + deliveryCharge;
 };
 
 const createParcel = async (payload: Partial<IParcel>, userId: string) => {
 
-    const senderId = new Types.ObjectId(userId);
+    const senderId = userId
 
     const receiver = await User.findById(payload.receiver);
     if (!receiver) {

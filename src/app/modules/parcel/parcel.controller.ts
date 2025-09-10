@@ -1,32 +1,34 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../errorHelper/AppError";
 import httpStatus from 'http-status-codes';
 import { ParcelService } from "./parcel.service";
 import { sendResponse } from "../../utils/sendResponse";
-import mongoose from "mongoose";
+import { JwtPayload } from "jsonwebtoken";
 
-const getUserId = (req: Request): string => {
-    // const userId = req.user?.userId
-    const userId = req.body?.userId;
+// const getUserId = (req: Request): string => {
+//     const userId = req.user
+//     // const userId = req.body?.userId;
 
-    if (!userId) {
-        throw new AppError(httpStatus.UNAUTHORIZED, 'User not logged in');
-    }
+//     // if (!userId) {
+//     //     throw new AppError(httpStatus.UNAUTHORIZED, 'User not logged in');
+//     // }
 
-    return String(userId);
-};
+//     // return String(userId);
+// };
 
 const createParcel = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // find userId
-        const senderId = getUserId(req);
+        const { userId } = req.user as JwtPayload;
+        console.log(userId);
 
         // create payload
-        const parcelData = { ...req.body, sender: senderId };
+        const parcelData = req.body;
 
         // create parcel in database
-        const parcel = await ParcelService.createParcel(parcelData, senderId);
+        const parcel = await ParcelService.createParcel(parcelData, userId);
 
         sendResponse(res, {
             success: true,
@@ -81,10 +83,10 @@ const getParcelById = async (req: Request, res: Response, next: NextFunction) =>
 
 const getParcelsBySender = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const senderId = getUserId(req);
+        const { userId } = req.user as JwtPayload;
 
         const query = req.query;
-        const result = await ParcelService.getParcelsBySender(senderId, query as Record<string, string>);
+        const result = await ParcelService.getParcelsBySender(userId, query as Record<string, string>);
 
         sendResponse(res, {
             success: true,
@@ -100,10 +102,10 @@ const getParcelsBySender = async (req: Request, res: Response, next: NextFunctio
 
 const getParcelsByReceiver = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const receiverId = getUserId(req);
+        const { userId } = req.user as JwtPayload;
 
         const query = req.query;
-        const result = await ParcelService.getParcelsByReceiver(receiverId, query as Record<string, string>);
+        const result = await ParcelService.getParcelsByReceiver(userId, query as Record<string, string>);
 
         sendResponse(res, {
             success: true,
@@ -143,12 +145,12 @@ const updateParcelStatus = async (req: Request, res: Response, next: NextFunctio
     try {
         const { id } = req.params;
         const { status, notes, location } = req.body;
-        const updatedBy = new mongoose.Types.ObjectId(getUserId(req));
+        const { userId } = req.user as JwtPayload;
 
         const parcel = await ParcelService.updateParcelStatus(
             id,
             status,
-            updatedBy,
+            userId,
             notes,
             location
         );
@@ -169,9 +171,9 @@ const cancelParcel = async (req: Request, res: Response, next: NextFunction) => 
     try {
         const { id } = req.params;
 
-        const senderId = getUserId(req);
+        const { userId } = req.user as JwtPayload;
 
-        const parcel = await ParcelService.cancelParcel(id, senderId);
+        const parcel = await ParcelService.cancelParcel(id, userId);
 
         sendResponse(res, {
             success: true,
@@ -188,9 +190,9 @@ const cancelParcel = async (req: Request, res: Response, next: NextFunction) => 
 const confirmDelivery = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
-        const receiverId = getUserId(req);
+        const { userId } = req.user as JwtPayload;
 
-        const parcel = await ParcelService.confirmDelivery(id, receiverId);
+        const parcel = await ParcelService.confirmDelivery(id, userId);
 
         sendResponse(res, {
             success: true,
