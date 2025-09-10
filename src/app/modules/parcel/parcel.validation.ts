@@ -6,6 +6,7 @@ export const createParcelValidationSchema = z.object({
         .nativeEnum(ParcelType, {
             message: 'Invalid parcel type'
         }),
+    status: z.nativeEnum(ParcelStatus, { message: 'Invalid parcel status' }).optional(),
     weight: z
         .number()
         .positive('weight must be positive')

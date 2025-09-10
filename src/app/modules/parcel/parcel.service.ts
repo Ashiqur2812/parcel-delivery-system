@@ -34,7 +34,7 @@ const calculateTotalAmount = (price: number, deliveryCharge: number): number => 
 
 const createParcel = async (payload: Partial<IParcel>, userId: string) => {
 
-    const senderId = userId
+    const senderId = userId;
 
     const receiver = await User.findById(payload.receiver);
     if (!receiver) {
@@ -51,13 +51,13 @@ const createParcel = async (payload: Partial<IParcel>, userId: string) => {
 
     const parcelData: Partial<IParcel> = {
         trackingId: generateTrackingId(),
-        status: ParcelStatus.REQUESTED,
+        status: payload.status || ParcelStatus.REQUESTED,
         sender: senderId,
         deliveryCharge,
         totalAmount,
         statusLogs: [
             {
-                status: ParcelStatus.REQUESTED,
+                status: payload.status || ParcelStatus.REQUESTED,
                 updatedBy: senderId,
                 timestamp: new Date(),
                 notes: "Parcel created by sender",

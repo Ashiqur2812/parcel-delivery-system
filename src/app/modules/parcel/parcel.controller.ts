@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import AppError from "../../errorHelper/AppError";
@@ -7,22 +6,12 @@ import { ParcelService } from "./parcel.service";
 import { sendResponse } from "../../utils/sendResponse";
 import { JwtPayload } from "jsonwebtoken";
 
-// const getUserId = (req: Request): string => {
-//     const userId = req.user
-//     // const userId = req.body?.userId;
-
-//     // if (!userId) {
-//     //     throw new AppError(httpStatus.UNAUTHORIZED, 'User not logged in');
-//     // }
-
-//     // return String(userId);
-// };
 
 const createParcel = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // find userId
         const { userId } = req.user as JwtPayload;
-        console.log(userId);
+        // console.log(userId);
 
         // create payload
         const parcelData = req.body;
