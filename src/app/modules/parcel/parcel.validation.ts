@@ -2,6 +2,7 @@ import z from "zod";
 import { ParcelStatus, ParcelType } from "./parcel.interface";
 
 export const createParcelValidationSchema = z.object({
+    trackingId: z.string().min(1).optional(),
     type: z
         .nativeEnum(ParcelType, {
             message: 'Invalid parcel type'
@@ -32,6 +33,16 @@ export const createParcelValidationSchema = z.object({
     deliveryDate: z
         .string()
         .datetime('Invalid date format').optional(),
+    isPaid: z.boolean().optional(),
+    statusLogs: z.array(z.object({
+        status: z.nativeEnum(ParcelStatus),
+        timestamp: z.string().datetime().optional(),
+        updatedBy: z.string().refine((val) => /^[0-9a-fA-F]{24}$/.test(val), { message: 'Invalid user ID' }),
+        location: z.string().max(200).optional(),
+        notes: z.string().max(1000).optional()
+    })).optional(),
+    paymentMethod: z.string().min(1, { message: 'Payment method is required' }).max(50, { message: 'Payment method too long' }).optional(),
+    assignedDriver: z.string().refine((val) => /^[0-9a-fA-F]{24}$/.test(val), { message: 'Invalid driver ID format' }).optional(),
     isFragile: z.boolean().optional(),
     notes: z.string().max(1000, { message: 'notes too long' }).optional()
 });
@@ -73,6 +84,8 @@ export const updateParcelValidationSchema = z.object({
         .string()
         .datetime('Invalid date format').optional()
         .optional(),
+    paymentMethod: z.string().min(1, { message: 'Payment method is required' }).max(50, { message: 'Payment method too long' }).optional(),
+    assignedDriver: z.string().refine((val) => /^[0-9a-fA-F]{24}$/.test(val), { message: 'Invalid driver ID format' }).optional(),
     isFragile: z.boolean().optional(),
     notes: z.string().max(1000, { message: 'notes too long' }).optional()
 });

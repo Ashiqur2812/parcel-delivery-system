@@ -49,24 +49,61 @@ const createParcel = async (payload: Partial<IParcel>, userId: string) => {
 
     const totalAmount = calculateTotalAmount(payload.price ?? 0, deliveryCharge);
 
+    // Build parcel data: start from payload to preserve client-provided fields,
+    // but enforce/normalize server-controlled values when necessary.
     const parcelData: Partial<IParcel> = {
-        trackingId: generateTrackingId(),
-        status: payload.status || ParcelStatus.REQUESTED,
-        sender: senderId,
-        deliveryCharge,
-        totalAmount,
-        statusLogs: [
+        ...payload,
+        trackingId: payload.trackingId ?? generateTrackingId(),
+        sender: new Types.ObjectId(senderId),
+        // prefer client-provided deliveryCharge/totalAmount when present, otherwise use computed
+        deliveryCharge: typeof payload.deliveryCharge === 'number' ? payload.deliveryCharge : deliveryCharge,
+        totalAmount: typeof payload.totalAmount === 'number' ? payload.totalAmount : totalAmount,
+        status: payload.status ?? ParcelStatus.REQUESTED,
+        isPaid: typeof payload.isPaid === 'boolean' ? payload.isPaid : false
+    };
+
+    // Normalize receiver to ObjectId (payload.receiver may be string)
+    if (parcelData.receiver && typeof parcelData.receiver === 'string') {
+        try {
+            parcelData.receiver = new Types.ObjectId(parcelData.receiver as string) as any;
+        } catch {
+            // leave as-is; mongoose will validate/cast or throw later
+        }
+    }
+
+    // Normalize assignedDriver to ObjectId if provided
+    if (parcelData.assignedDriver && typeof parcelData.assignedDriver === 'string') {
+        try {
+            parcelData.assignedDriver = new Types.ObjectId(parcelData.assignedDriver as string) as any;
+        } catch {
+            // noop
+        }
+    }
+
+    // Normalize statusLogs: if client provided logs use them (normalize types), otherwise create initial log
+    if (payload.statusLogs && Array.isArray(payload.statusLogs) && payload.statusLogs.length > 0) {
+        parcelData.statusLogs = payload.statusLogs.map(log => ({
+            status: log.status,
+            timestamp: log.timestamp ? new Date(log.timestamp) : new Date(),
+            updatedBy: log.updatedBy ? new Types.ObjectId(log.updatedBy as any) : new Types.ObjectId(senderId),
+            location: log.location,
+            notes: log.notes
+        }));
+    } else {
+        parcelData.statusLogs = [
             {
-                status: payload.status || ParcelStatus.REQUESTED,
-                updatedBy: senderId,
+                status: parcelData.status as ParcelStatus,
+                updatedBy: new Types.ObjectId(senderId),
                 timestamp: new Date(),
                 notes: "Parcel created by sender",
             },
-        ],
-        ...payload
-    };
+        ];
+    }
 
-    return Parcel.create(parcelData);
+    const created = await Parcel.create(parcelData);
+
+    // Return populated document so client immediately sees sender/receiver/assignedDriver details
+    return Parcel.findById(created._id).populate('sender receiver assignedDriver', 'name email phone');
 
 };
 
