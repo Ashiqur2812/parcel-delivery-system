@@ -55,7 +55,7 @@ const createParcel = async (payload: Partial<IParcel>, userId: string) => {
         ...payload,
         trackingId: payload.trackingId ?? generateTrackingId(),
         sender: new Types.ObjectId(senderId),
-        // prefer client-provided deliveryCharge/totalAmount when present, otherwise use computed
+
         deliveryCharge: typeof payload.deliveryCharge === 'number' ? payload.deliveryCharge : deliveryCharge,
         totalAmount: typeof payload.totalAmount === 'number' ? payload.totalAmount : totalAmount,
         status: payload.status ?? ParcelStatus.REQUESTED,
@@ -81,8 +81,10 @@ const createParcel = async (payload: Partial<IParcel>, userId: string) => {
     }
 
     // Normalize statusLogs: if client provided logs use them (normalize types), otherwise create initial log
-    if (payload.statusLogs && Array.isArray(payload.statusLogs) && payload.statusLogs.length > 0) {
-        parcelData.statusLogs = payload.statusLogs.map(log => ({
+    if (payload.statusLogs && Array.isArray(payload.statusLogs) && payload.statusLogs.length > 0) 
+        {
+        parcelData.statusLogs = payload.statusLogs.map(log => (
+            {
             status: log.status,
             timestamp: log.timestamp ? new Date(log.timestamp) : new Date(),
             updatedBy: log.updatedBy ? new Types.ObjectId(log.updatedBy as any) : new Types.ObjectId(senderId),
@@ -102,13 +104,12 @@ const createParcel = async (payload: Partial<IParcel>, userId: string) => {
 
     const created = await Parcel.create(parcelData);
 
-    // Return populated document so client immediately sees sender/receiver/assignedDriver details
     return Parcel.findById(created._id).populate('sender receiver assignedDriver', 'name email phone');
 
 };
 
 const getAllParcels = async (query: Record<string, string>) => {
-    const queryBuilder = new QueryBuilder(Parcel.find().populate('sender receiver', 'name email phone'), query);
+    const queryBuilder = new QueryBuilder(Parcel.find(), query);
 
     const parcelData = queryBuilder
         .filter()

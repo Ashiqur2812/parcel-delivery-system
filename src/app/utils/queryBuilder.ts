@@ -5,7 +5,7 @@ import { excludeField } from "../constant";
 export class QueryBuilder<T> {
     public modelQuery: Query<T[], T>;
     public readonly query: Record<string, string>;
-    private filterObject: FilterQuery<T> = {};
+    private filterObj: FilterQuery<T> = {};
 
     constructor(modelQuery: Query<T[], T>, query: Record<string, string>) {
         this.modelQuery = modelQuery;
@@ -23,12 +23,16 @@ export class QueryBuilder<T> {
         return this;
     }
 
-    search(searchAbleField: string[]): this {
-        const searchTerm = this.query.searchTerm || '';
-        const searchQuery = {
-            $or: searchAbleField.map(field => ({ [field]: { $regex: searchTerm, $options: 'i' } }))
-        };
-        this.modelQuery = this.modelQuery.find(searchQuery);
+    search(fields: string[]) {
+        if (this.query.search) {
+            const searchFilter = {
+                $or: fields.map((field) => ({
+                    [field]: { $regex: this.query.search as string, $options: "i" },
+                })),
+            };
+            this.filterObj = { ...this.filterObj, ...searchFilter };
+            this.modelQuery = this.modelQuery.find(searchFilter);
+        }
         return this;
     }
 
@@ -49,7 +53,7 @@ export class QueryBuilder<T> {
     }
 
     getFilter(): FilterQuery<T> {
-        return this.filterObject;
+        return this.filterObj;
     }
 
     build() {
