@@ -6,6 +6,7 @@ import { ParcelController } from './parcel.controller';
 import { checkParcelOwnerOrAdmin } from '../../middleware/checkParcelOwnerOrAdmin';
 import { ParcelValidation } from './parcel.validation';
 
+
 const router = express.Router();
 
 router.post('/create', checkAuth(Role.SENDER), validateRequest(ParcelValidation.createParcelValidationSchema), ParcelController.createParcel);
@@ -39,6 +40,6 @@ router.delete('/:id', checkAuth(Role.ADMIN), ParcelController.deleteParcel);
 router.get('/track/:trackingId', ParcelController.getParcelByTrackingId);
 
 // authenticated user routes with ownership check
-router.get('/:id', checkAuth(Role.ADMIN, Role.SENDER, Role.RECEIVER), checkParcelOwnerOrAdmin, ParcelController.getParcelById);
+router.get('/:id', checkAuth(Role.ADMIN, Role.SENDER, Role.RECEIVER), ParcelController.getParcelById);
 
 export const ParcelRoutes = router;

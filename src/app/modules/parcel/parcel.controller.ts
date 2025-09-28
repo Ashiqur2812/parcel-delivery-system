@@ -51,6 +51,7 @@ const getAllParcels = async (req: Request, res: Response, next: NextFunction) =>
 const getParcelById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
+        // console.log(id);
 
         const parcel = await ParcelService.getParcelById(id);
 

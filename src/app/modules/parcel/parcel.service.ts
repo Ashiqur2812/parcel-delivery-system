@@ -81,16 +81,15 @@ const createParcel = async (payload: Partial<IParcel>, userId: string) => {
     }
 
     // Normalize statusLogs: if client provided logs use them (normalize types), otherwise create initial log
-    if (payload.statusLogs && Array.isArray(payload.statusLogs) && payload.statusLogs.length > 0) 
-        {
+    if (payload.statusLogs && Array.isArray(payload.statusLogs) && payload.statusLogs.length > 0) {
         parcelData.statusLogs = payload.statusLogs.map(log => (
             {
-            status: log.status,
-            timestamp: log.timestamp ? new Date(log.timestamp) : new Date(),
-            updatedBy: log.updatedBy ? new Types.ObjectId(log.updatedBy as any) : new Types.ObjectId(senderId),
-            location: log.location,
-            notes: log.notes
-        }));
+                status: log.status,
+                timestamp: log.timestamp ? new Date(log.timestamp) : new Date(),
+                updatedBy: log.updatedBy ? new Types.ObjectId(log.updatedBy as any) : new Types.ObjectId(senderId),
+                location: log.location,
+                notes: log.notes
+            }));
     } else {
         parcelData.statusLogs = [
             {
@@ -173,11 +172,12 @@ const getParcelByTrackingId = async (trackingId: string): Promise<IParcel | null
         .populate('assignedDriver', 'name email phone');
 };
 
-const getParcelById = async (id: string): Promise<IParcel | null> => {
-    return Parcel.findOne({ id })
+const getParcelById = async (id: string) => {
+    const result = await Parcel.findById(id)
         .populate('sender', 'name email phone address')
         .populate('receiver', 'name email phone address')
         .populate('assignedDriver', 'name email phone');
+    return result;
 };
 
 const updateParcelStatus = async (
