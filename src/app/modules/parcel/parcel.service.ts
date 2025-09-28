@@ -201,10 +201,15 @@ const updateParcelStatus = async (
         );
     }
 
+    const formattedTime = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Dhaka',   // BD time zone
+        hour12: true              // 12-hour format (AM/PM)
+    });
+
     const statusUpdate = {
         status,
         updatedBy,
-        timestamp: new Date(),
+        timestamp: formattedTime,
         notes,
         location
     };
@@ -295,7 +300,8 @@ const deleteParcel = async (parcelId: string): Promise<IParcel | null> => {
         throw new AppError(httpStatus.BAD_REQUEST, `Parcel in ${parcel.status} cannot be deleted`);
     }
 
-    return Parcel.findByIdAndDelete(parcelId);
+    const result = await Parcel.findByIdAndDelete(parcelId);
+    return result;
 };
 
 const blockUnblockParcel = async (parcelId: string, block: boolean, reason?: string): Promise<IParcel | null> => {
@@ -306,6 +312,11 @@ const blockUnblockParcel = async (parcelId: string, block: boolean, reason?: str
 
     const status = block ? ParcelStatus.BLOCKED : ParcelStatus.APPROVED;
 
+    const formattedTime = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Dhaka',   // BD time zone
+        hour12: true              // 12-hour format (AM/PM)
+    });
+
     const updateData = {
         isBlocked: block,
         status,
@@ -313,8 +324,8 @@ const blockUnblockParcel = async (parcelId: string, block: boolean, reason?: str
             statusLogs: {
                 status,
                 updatedBy: new Types.ObjectId(),
-                timestamp: new Date(),
-                note: reason || `Parcel ${block ? 'blocked' : 'unblocked'} by admin`
+                timestamp: formattedTime,
+                notes: reason || `Parcel ${block ? 'blocked' : 'unblocked'} by admin`
             }
         }
     };
@@ -327,6 +338,11 @@ const updatePaymentStatus = async (parcelId: string, isPaid: boolean, paymentMet
     const statusNote = `Payment ${isPaid ? "completed" : "pending"}${paymentMethod ? ` via ${paymentMethod}` : ""
         }`;
 
+    const formattedTime = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Dhaka',   // BD time zone
+        hour12: true              // 12-hour format (AM/PM)
+    });
+
     const updateData = {
         isPaid,
         paymentMethod,
@@ -334,8 +350,8 @@ const updatePaymentStatus = async (parcelId: string, isPaid: boolean, paymentMet
             statusLogs: {
                 status: ParcelStatus.APPROVED,
                 updatedBy: new Types.ObjectId(),
-                timestamp: new Date(),
-                note: statusNote
+                timestamp: formattedTime,
+                notes: statusNote
             }
         }
     };

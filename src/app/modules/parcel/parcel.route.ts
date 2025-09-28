@@ -29,7 +29,7 @@ router.get('/search', checkAuth(Role.ADMIN), ParcelController.searchParcels);
 
 router.patch('/status/:id', checkAuth(Role.ADMIN), validateRequest(ParcelValidation.updateParcelStatusValidationSchema), ParcelController.updateParcelStatus);
 
-router.patch('/block-unblock', checkAuth(Role.ADMIN), validateRequest(ParcelValidation.blockParcelValidationSchema), ParcelController.blockUnblockParcel);
+router.patch('/block-unblock/:id', checkAuth(Role.ADMIN), validateRequest(ParcelValidation.blockParcelValidationSchema), ParcelController.blockUnblockParcel);
 
 router.patch('/payment/:id', checkAuth(Role.ADMIN), validateRequest(ParcelValidation.paymentValidationSchema), ParcelController.updatePaymentStatus);
 
