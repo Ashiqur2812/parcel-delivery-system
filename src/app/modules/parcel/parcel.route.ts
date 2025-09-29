@@ -40,6 +40,6 @@ router.delete('/:id', checkAuth(Role.ADMIN), ParcelController.deleteParcel);
 router.get('/track/:trackingId', ParcelController.getParcelByTrackingId);
 
 // authenticated user routes with ownership check
-router.get('/:id', checkAuth(Role.ADMIN, Role.SENDER, Role.RECEIVER), ParcelController.getParcelById);
+router.get('/:id', checkAuth(Role.ADMIN, Role.SENDER, Role.RECEIVER), checkParcelOwnerOrAdmin, ParcelController.getParcelById);
 
 export const ParcelRoutes = router;
