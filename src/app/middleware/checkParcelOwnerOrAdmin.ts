@@ -40,7 +40,7 @@ export const checkParcelOwnerOrAdmin = async (req: Request, res: Response, next:
         const userIsReceiver = parcel.receiver?.toString() === userID.toString();
 
         if (userIsSender || userIsReceiver) {
-            next();
+            return next();
         }
 
         throw new AppError(
