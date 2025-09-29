@@ -141,3 +141,59 @@ export const checkParcelReceiverOrAdmin = async (req: Request, res: Response, ne
         next(error);
     }
 };
+
+export const checkParcelStatusUpdatePermission = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const parcelId = req.params.id;
+        const { status } = req.body;
+
+        if (!req.user) {
+            throw new AppError(httpStatus.UNAUTHORIZED, 'User Id not found in token');
+        }
+
+        const user = req.user as { userId?: string; id?: string; _id?: string; role?: string; };
+
+        const userID = user.userId || user.id || user._id;
+
+        if (!userID) {
+            throw new AppError(httpStatus.UNAUTHORIZED, "User ID not found in token");
+        }
+
+        // Find the parcel
+        const parcel = await Parcel.findById(parcelId);
+        if (!parcel) {
+            throw new AppError(httpStatus.NOT_FOUND, 'Parcel not found');
+        }
+
+        // allow admin to access any parcel
+        const userAdmin = req.user as { role: Role; };
+
+        if (userAdmin && userAdmin.role === Role.ADMIN) {
+            return next();
+        }
+
+        // Define allowed statuses for cancellation
+        const ALLOWED_CANCELLATION_STATUSES = ["REQUESTED", "APPROVED"] as const;
+
+        // check if the current user is the sender
+        const isSender = parcel.sender?.toString() === userID.toString()
+
+        // check if the user wants to cancel the parcel
+        const isCancellationRequested = status === 'CANCELLED'
+
+        if(isSender && isCancellationRequested){
+            const isCancellable = (ALLOWED_CANCELLATION_STATUSES as readonly string[]).includes(parcel.status)
+
+
+            if(!isCancellable){
+                throw new AppError(httpStatus.BAD_REQUEST,'Cannot cancel the parcel in its current status')
+            }
+        }
+
+        return next()
+
+    } catch (error) {
+        next(error);
+    }
+};
