@@ -97,3 +97,47 @@ export const checkParcelSenderOrAdmin = async (req: Request, res: Response, next
         next(error);
     }
 };
+
+export const checkParcelReceiverOrAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const parcelId = req.params.id;
+
+        if (!req.user) {
+            throw new AppError(httpStatus.UNAUTHORIZED, 'User information not found');
+        }
+
+        // allow admin to access any parcel
+        const userAdmin = req.user as { role: Role; };
+
+        if (userAdmin && userAdmin.role === Role.ADMIN) {
+            return next();
+        }
+
+        const user = req.user as { userId?: string; id?: string; _id?: string; role?: string; };
+
+        const userID = user.userId || user.id || user._id;
+
+        if (!userID) {
+            throw new AppError(httpStatus.UNAUTHORIZED, "User ID not found in token");
+        }
+
+        // Find the parcel
+        const parcel = await Parcel.findById(parcelId);
+        if (!parcel) {
+            throw new AppError(httpStatus.NOT_FOUND, 'Parcel not found');
+        }
+
+        // check if the user is the receiver of the parcel
+
+        const userIsReceiver = parcel.receiver?.toString() === userID.toString();
+
+        if (userIsReceiver) {
+            return next();
+        }
+
+        throw new AppError(httpStatus.FORBIDDEN, 'Access denied: Only the sender can perform this action');
+
+    } catch (error) {
+        next(error);
+    }
+};
