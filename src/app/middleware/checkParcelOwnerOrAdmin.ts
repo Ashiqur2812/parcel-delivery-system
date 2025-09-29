@@ -177,21 +177,37 @@ export const checkParcelStatusUpdatePermission = async (req: Request, res: Respo
         const ALLOWED_CANCELLATION_STATUSES = ["REQUESTED", "APPROVED"] as const;
 
         // check if the current user is the sender
-        const isSender = parcel.sender?.toString() === userID.toString()
+        const isSender = parcel.sender?.toString() === userID.toString();
 
         // check if the user wants to cancel the parcel
-        const isCancellationRequested = status === 'CANCELLED'
+        const isCancellationRequested = status === 'CANCELLED';
 
-        if(isSender && isCancellationRequested){
-            const isCancellable = (ALLOWED_CANCELLATION_STATUSES as readonly string[]).includes(parcel.status)
+        if (isSender && isCancellationRequested) {
+            const isCancellable = (ALLOWED_CANCELLATION_STATUSES as readonly string[]).includes(parcel.status);
 
 
-            if(!isCancellable){
-                throw new AppError(httpStatus.BAD_REQUEST,'Cannot cancel the parcel in its current status')
+            if (!isCancellable) {
+                throw new AppError(httpStatus.BAD_REQUEST, 'Cannot cancel the parcel in its current status');
             }
+            return next();
         }
 
-        return next()
+        const isReceiver = parcel.receiver?.toString() === userID.toString();
+
+        const wantsToDeliver = status === 'DELIVERED';
+
+        // Only allow delivery if the user is receiver and parcel is out for delivery
+        if (isReceiver && wantsToDeliver) {
+            if (parcel.status !== 'OUT_FOR_DELIVERY') {
+                throw new AppError(httpStatus.BAD_REQUEST, 'Parcel is not out for delivery');
+            }
+            return next();
+        }
+
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            "Access denied: You don't have permission to update this parcel's status"
+        );
 
     } catch (error) {
         next(error);
